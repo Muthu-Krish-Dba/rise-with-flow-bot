@@ -38,9 +38,9 @@ client = Client('en-US')
 
 def login():
     client.login(
-        auth_info_1=os.environ["@RisewithFlow"],
-        auth_info_2=os.environ["krishdhanush12@gamil.com"],
-        password=os.environ["krish20031992"]
+        auth_info_1=os.environ["TW_USERNAME"],
+        auth_info_2=os.environ["TW_EMAIL"],
+        password=os.environ["TW_PASSWORD"]
     )
     client.save_cookies("cookies.json")
 
