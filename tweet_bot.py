@@ -1,9 +1,10 @@
-from twikit import Client
-import random
 import os
+import random
+import asyncio
+from twikit import Client
 
 QUOTES = [
-    "You have to believe in yourself when no one else does. —Serena Williams",
+   "You have to believe in yourself when no one else does. —Serena Williams",
     "When you have a dream, you’ve got to grab it and never let go. —Carol Burnett",
     "Spread love everywhere you go. Let no one ever come without leaving happier. —Mother Teresa",
     "Be yourself; everyone else is already taken. —Oscar Wilde",
@@ -27,33 +28,43 @@ QUOTES = [
     "If you don’t like the road you’re walking, start paving another one. —Dolly Parton",
     "Keep smiling, because life is a beautiful thing and there’s so much to smile about. —Marilyn Monroe",
     "Be persistent and never give up hope. —George Lucas",
-    "There are so many great things in life; why dwell on negativity? —Zendaya",
-    "Always remember that you are absolutely unique. Just like everyone else. —Margaret Mead",
-    "You don’t always need a plan. Sometimes you just need to breathe, trust, let go and see what happens. —Mandy Hale",
-    "Life is like riding a bicycle. To keep your balance, you must keep moving. —Albert Einstein",
-    "Nothing is impossible. The word itself says ‘I’m possible!’ —Audrey Hepburn",
-    "Life does not have to be perfect to be wonderful. —Annette Funicello"
 ]
 
 client = Client('en-US')
 
-def login():
-    client.login(
+
+async def login():
+    await client.login(
         auth_info_1=os.environ["TW_USERNAME"],
         auth_info_2=os.environ["TW_EMAIL"],
         password=os.environ["TW_PASSWORD"]
     )
     client.save_cookies("cookies.json")
+    print("Logged in & cookies saved.")
 
-def post_tweet():
+
+async def post_tweet():
     quote = random.choice(QUOTES)
-    client.load_cookies("cookies.json")
-    client.tweet(quote)
+
+    # Load cookies if available
+    if os.path.exists("cookies.json"):
+        client.load_cookies("cookies.json")
+    else:
+        await login()
+
+    await client.create_tweet(text=quote)
     print("Tweet posted:", quote)
 
-if __name__ == "__main__":
+
+async def main():
     try:
-        post_tweet()
-    except:
-        login()
-        post_tweet()
+        await post_tweet()
+    except Exception as e:
+        print("Error encountered:", e)
+        print("Trying login again...")
+        await login()
+        await post_tweet()
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
